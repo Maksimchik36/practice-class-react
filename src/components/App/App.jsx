@@ -3,10 +3,12 @@ import { nanoid } from 'nanoid';
 import { TodoList } from 'components/TodoList/TodoList';
 
 import { Container, Header, SearchForm, Section } from 'components';
+import Inputs from 'components/Inputs/Inputs';
 
 export class App extends Component {
   state = {
     todos: [],
+    currency: 'USD',
   };
 
   componentDidMount() {
@@ -19,8 +21,8 @@ export class App extends Component {
       navigator.geolocation.getCurrentPosition(position => {
         const latitude = position?.coords?.latitude;
         const longitude = position?.coords?.longitude;
-        console.log('latitude', latitude);
-        console.log('longitude', longitude);
+        // console.log('latitude', latitude);
+        // console.log('longitude', longitude);
         const apiKey = 'd4683b09d0c94ec0aebf0b2e043decbf';
         const urlPosition = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}&language=en`;
 
@@ -31,9 +33,12 @@ export class App extends Component {
             }
             return response.json();
           })
-          .then(data =>
-            console.log(data.results[0].annotations.currency.iso_code)
-          );
+          .then(data => {
+            this.setState({
+              currency: data.results[0].annotations.currency.iso_code,
+            });
+            console.log(data.results[0].annotations.currency.iso_code);
+          });
       });
     }
 
@@ -45,10 +50,12 @@ export class App extends Component {
       redirect: 'follow',
       headers: myHeaders,
     };
-    fetch('https://api.apilayer.com/exchangerates_data/symbols', requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
+    fetch(
+      'https://api.apilayer.com/exchangerates_data/symbols',
+      requestOptions
+    ).then(response => response.text());
+    // .then(result => console.log(result))
+    // .catch(error => console.log('error', error));
   }
   componentDidUpdate(prevProps, prevState) {
     const { todos } = this.state;
@@ -74,11 +81,12 @@ export class App extends Component {
   };
 
   render() {
-    console.log(navigator);
+    // console.log(navigator);
     return (
       <>
         <Header />
-
+        <p>Current currency: {this.state.currency}</p>
+<Inputs/>
         <Section>
           <Container>
             <SearchForm onSubmit={this.handleSubmit} />
